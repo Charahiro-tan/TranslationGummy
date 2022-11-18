@@ -1,0 +1,117 @@
+<script>
+  const to_number = str => {
+    return Number(str.replace(/[０-９]/g, (s) => {
+      return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+    }));
+  };
+
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  const translate = (...args) => new Promise((resolve, reject) => {
+    google.script.run
+    .withSuccessHandler(resolve)
+    .withFailureHandler(reject)
+    .translate(...args);
+  });
+
+  const displaying_func = (elm, word, prefix) => {
+    return new Promise(async(resolve) => {
+      let w = prefix + word + " ";
+      elm.value = w;
+      await sleep(2000);
+      if(elm.clientWidth < elm.scrollWidth){
+        const scroll_amount = elm.scrollWidth - elm.clientWidth;
+        for(let i = 1; i < scroll_amount; i++){
+          elm.scrollLeft = i;
+          await sleep(config.scroll_speed*2);
+        }
+        await sleep(1000);
+      }
+      resolve();
+    });
+  };
+
+  const location_reload = () => {
+    const result = url => {
+      window.open(url, "_top");
+    };
+    google.script.run.withSuccessHandler(result).getScriptUrl();
+  };
+
+  const localstorage_check = () => {
+    if(typeof localStorage !== "undefined"){
+      try{
+        localStorage.setItem("dummy", "1");
+        if(localStorage.getItem("dummy") === "1"){
+          localStorage.removeItem("dummy");
+          return true;
+        };
+      }catch{}
+    }
+    return false;
+  };
+
+  const get_fontFamily = (font, customfont) => {
+    let font_family = `'${fontList[font][0]}', sans-serif`;
+    if(customfont.length){
+      font_family = `'${customfont}', ` + font_family;
+    }
+    return font_family;
+  };
+
+  const get_shadow = (shadow, blur, color) => {
+    let css = ""
+    if(shadow === 0){
+      return css;
+    }
+    for(let i=1; i<=shadow; i++){
+      css += `${i}px 0px ${blur}px ${color}, -${i}px 0px ${blur}px ${color}, 0px ${i}px ${blur}px ${color}, 0px -${i}px ${blur}px ${color}, ${i}px ${i}px ${blur}px ${color}, -${i}px ${i}px ${blur}px ${color}, ${i}px -${i}px ${blur}px ${color}, -${i}px -${i}px ${blur}px ${color},`;
+    }
+    return css.slice(0, -1);
+  };
+
+  const get_textarea_height = (fontsize, fontfamily) => {
+    elms.testarea.style.fontSize = `${fontsize}px`;
+    elms.testarea.style.fontFamily = fontfamily;
+    return elms.testarea.scrollHeight;
+  };
+
+  const get_lang_iso639 = () => {
+    let result = [];
+    for(const l of langList){
+      if(l.length == 2){
+        result.push(l[0]);
+      }else if(l.length == 3){
+        result.push(l[0]);
+        result.push(l[2]);
+      }
+    }
+    return result;
+  };
+
+  class Queue {
+    constructor(){
+      this._array = [];
+    }
+
+    qsize(){
+      return this._array.length;
+    }
+
+    enpty(){
+      return this._array.length? false:true;
+    }
+
+    put(s){
+      this._array.push(s);
+    }
+
+    get(){
+      if(this._array.length){
+        return this._array.shift();
+      }else{
+        return null;
+      }
+    }
+  }
+</script>
