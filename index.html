@@ -4,8 +4,8 @@
 <head>
   <base target="_top">
 
-  <?!= HtmlService.createHtmlOutputFromFile("init_css").getContent(); ?>
-  <?!= HtmlService.createHtmlOutputFromFile("css").getContent(); ?>
+  <?!= HtmlService.createHtmlOutputFromFile("css/initcss").getContent(); ?>
+  <?!= HtmlService.createHtmlOutputFromFile("css/css").getContent(); ?>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,13 +16,13 @@
 </head>
 
 <body>
-  <div id="display_area">
+  <div id="displayArea">
     <div style="height: 100px"></div>
-    <textarea id="display1" class="display_row" translate="no" disabled></textarea>
-    <div class="display_spacing"></div>
-    <textarea id="display2" class="display_row" translate="no" disabled></textarea>
-    <div class="display_spacing"></div>
-    <textarea id="display3" class="display_row" translate="no" disabled></textarea>
+    <textarea id="display1" class="displayRow" translate="no" disabled></textarea>
+    <div class="displaySpacing"></div>
+    <textarea id="display2" class="displayRow" translate="no" disabled></textarea>
+    <div class="displaySpacing"></div>
+    <textarea id="display3" class="displayRow" translate="no" disabled></textarea>
     <div style="height: 100px"></div>
   </div>
   <div id="settings">
@@ -30,25 +30,25 @@
 
     <div>
       <h3>ステータス</h3>
-      <textarea id="status" readonly></textarea><input type="button" id="mute_button">
+      <textarea id="status" readonly></textarea><input type="button" id="muteButton">
     </div>
 
     <div>
       <h3>ログ</h3>
-      <input type="button" id="log_clear" value="ログをクリア"><br>
-      <textarea id="log_area" readonly></textarea><br>
+      <input type="button" id="logClear" value="ログをクリア"><br>
+      <textarea id="logArea" readonly></textarea><br>
     </div>
 
     <div>
       <h3>設定</h3>
-      <span id="localstorage_result"></span>
+      <span id="localstorageResult"></span>
       <table>
         <tr>
           <td>
             <b>背景色</b><br><span class="supplement">ボックス下のRGBをクリックしてHEXにすると16進数で入力できます</span>
           </td>
           <td>
-            <input type="color" id="background_color">
+            <input type="color" id="backgroundColor">
           </td>
         </tr>
         <tr>
@@ -56,9 +56,9 @@
             <b>表示エリアに色をつける</b><br><span class="supplement">表示エリアに色を付けます。キャプチャー範囲の調整や幅の調整時に。</span>
           </td>
           <td>
-            <label for="display_area_color_validity">有効にする</label>&nbsp;<input type="checkbox" id="display_area_color_validity"><br>
-            <label for="display_area_color">色</label>&nbsp;<input type="color" id="display_area_color"><br>
-            <input type="button" id="display_area_dummy" value="ダミーの文字を出す"><input type="button" id="display_area_dummy_clear" value="ダミーの文字を消す">
+            <label for="displayAreaColorValidity">有効にする</label>&nbsp;<input type="checkbox" id="displayAreaColorValidity"><br>
+            <label for="displayAreaColor">色</label>&nbsp;<input type="color" id="displayAreaColor"><br>
+            <input type="button" id="displayAreaDummy" value="ダミーの文字を出す"><input type="button" id="displayAreaDummyClear" value="ダミーの文字を消す">
           </td>
         </tr>
         <tr>
@@ -66,7 +66,7 @@
             <b>認識エリアの幅</b><br><span class="supplement">1行目の幅です</span>
           </td>
           <td>
-            <input type="number" id="recog_area_width" min="0">px
+            <input type="number" id="recogAreaWidth" min="0">px
           </td>
         </tr>
         <tr>
@@ -74,7 +74,7 @@
             <b>翻訳エリア1の幅</b><br><span class="supplement">2行目の幅です</span>
           </td>
           <td>
-            <input type="number" id="trans1_area_width" min="0">px
+            <input type="number" id="trans1AreaWidth" min="0">px
           </td>
         </tr>
         <tr>
@@ -82,7 +82,7 @@
             <b>翻訳エリア2の幅</b><br><span class="supplement">3行目の幅です(2言語翻訳を有効にした時の2言語目)</span>
           </td>
           <td>
-            <input type="number" id="trans2_area_width" min="0">px
+            <input type="number" id="trans2AreaWidth" min="0">px
           </td>
         </tr>
         <tr>
@@ -90,7 +90,7 @@
             <b>表示エリアの行間</b><br><span class="supplement">表示エリアの行間です</span>
           </td>
           <td>
-            <input type="number" id="display_area_spacing" min="0">px
+            <input type="number" id="displayAreaSpacing" min="0">px
           </td>
         </tr>
         <tr>
@@ -98,7 +98,7 @@
             <b>スクロールスピード</b><br><span class="supplement">枠からはみ出した時にスクロールするスピードです</span>
           </td>
           <td>
-            <input type="range" id="scroll_speed" min="1" max="10">&nbsp;<span id="scroll_speed_value"></span>
+            <input type="range" id="scrollSpeed" min="1" max="10">&nbsp;<span id="scrollSpeedValue"></span>
           </td>
         </tr>
         <tr>
@@ -107,7 +107,7 @@
             <span class="supplement">ja-JPやen-USなど<br>BCP47 language-region形式</span>
           </td>
           <td>
-            <input id="recognition_lang">
+            <input id="recognitionLang">
           </td>
         </tr>
         <tr>
@@ -116,7 +116,7 @@
             <span class="supplement">有効にするとできるだけ長く認識しようとします。<br>翻訳量は減りますが、人によってはなかなか途切れないことも</span>
           </td>
           <td>
-            <input type="checkbox" id="recognition_mode">
+            <input type="checkbox" id="recognitionMode">
           </td>
         </tr>
         <tr>
@@ -124,7 +124,7 @@
             <b>途中結果を表示する</b>
           </td>
           <td>
-            <input type="checkbox" id="interim_results">
+            <input type="checkbox" id="interimResults">
           </td>
         </tr>
         <tr>
@@ -132,7 +132,7 @@
             <b>音声認識結果を表示しない</b>
           </td>
           <td>
-            <input type="checkbox" id="recog_result_hidden">
+            <input type="checkbox" id="recogResultHidden">
           </td>
         </tr>
         <tr>
@@ -141,9 +141,9 @@
             <span class="supplement">すべてGoogleFontsより</span>
           </td>
           <td>
-            <select id="recog_font" class="font_select"></select>
-            <input type="color" id="recog_color">
-            <input type="number" id="recog_font_size" min="0">px
+            <select id="recogFont" class="fontSelect"></select>
+            <input type="color" id="recogColor">
+            <input type="number" id="recogFontSize" min="0">px
           </td>
         </tr>
         <tr>
@@ -152,7 +152,7 @@
             <span class="supplement">ローカルのフォントを設定したい時にフォント名を入力<br>見つからなかった時は上のフォントが使われます</span>
           </td>
           <td>
-            <input id="recog_custom_font">
+            <input id="recogCustomFont">
           </td>
         </tr>
         <tr>
@@ -161,7 +161,7 @@
             <span class="supplement">結果にプレフィックスを付けたい場合に<br>例: [ja] 等...</span>
           </td>
           <td>
-            <input id="recog_prefix" class="prefix">
+            <input id="recogPrefix" class="prefix">
           </td>
         </tr>
         <tr>
@@ -170,10 +170,10 @@
             <span class="supplement">音声認識結果の文字の縁取りの太さ、ぼかし、色、字間<br>縁取りの太さ0で縁取りなし、縁取りを太くした時はぼかし入れないと汚いです。</span>
           </td>
           <td>
-            <label for="recog_shadow_size">縁取りの太さ</label>&nbsp;<input type="range" id="recog_shadow_size" min="0" max="5">&nbsp;<span id="recog_shadow_size_value"></span>px<br>
-            <label for="recog_shadow_blur">縁取りのぼかし</label>&nbsp;<input type="range" id="recog_shadow_blur" min="0" max="10">&nbsp;<span id="recog_shadow_blur_value"></span>px<br>
-            <label for="recog_shadow_color">縁取りの色</label>&nbsp;<input type="color" id="recog_shadow_color"><br>
-            <label for="recog_letter_space">文字間</label>&nbsp;<input type="range" id="recog_letter_space" min="2" max="10" step="2">&nbsp;<span id="recog_letter_space_value"></span>px
+            <label for="recogShadowSize">縁取りの太さ</label>&nbsp;<input type="range" id="recogShadowSize" min="0" max="5">&nbsp;<span id="recogShadowSizeValue"></span>px<br>
+            <label for="recogShadowBlur">縁取りのぼかし</label>&nbsp;<input type="range" id="recogShadowBlur" min="0" max="10">&nbsp;<span id="recogShadowBlurValue"></span>px<br>
+            <label for="recogShadowColor">縁取りの色</label>&nbsp;<input type="color" id="recogShadowColor"><br>
+            <label for="recogLetterSpace">文字間</label>&nbsp;<input type="range" id="recogLetterSpace" min="2" max="10" step="2">&nbsp;<span id="recogLetterSpaceValue"></span>px
           </td>
         </tr>
         <tr>
@@ -181,7 +181,7 @@
             <b>翻訳先言語1</b>
           </td>
           <td>
-            <select id="trans1_lang" class="lang_select"></select>
+            <select id="trans1Lang" class="langSelect"></select>
           </td>
         </tr>
         <tr>
@@ -189,9 +189,9 @@
             <b>翻訳結果1のフォント・色・サイズ</b>
           </td>
           <td>
-            <select id="trans1_font" class="font_select"></select>
-            <input type="color" id="trans1_color">
-            <input type="number" id="trans1_font_size" min="0">px
+            <select id="trans1Font" class="fontSelect"></select>
+            <input type="color" id="trans1Color">
+            <input type="number" id="trans1FontSize" min="0">px
           </td>
         </tr>
         <tr>
@@ -200,7 +200,7 @@
             <span class="supplement">ローカルのフォントを設定したい時にフォント名を入力<br>見つからなかった時は上のフォントが使われます</span>
           </td>
           <td>
-            <input id="trans1_custom_font">
+            <input id="trans1CustomFont">
           </td>
         </tr>
         <tr>
@@ -208,7 +208,7 @@
             <b>翻訳結果1のプレフィックス</b>
           </td>
           <td>
-            <input id="trans1_prefix" class="prefix">
+            <input id="trans1Prefix" class="prefix">
           </td>
         </tr>
         <tr>
@@ -217,10 +217,10 @@
             <span class="supplement">翻訳結果の文字の縁取りの太さ、ぼかし、色、字間<br>縁取りの太さ0で縁取りなし、縁取りを太くした時はぼかし入れないと汚いです。</span>
           </td>
           <td>
-            <label for="trans1_shadow_size">縁取りの太さ</label>&nbsp;<input type="range" id="trans1_shadow_size" min="0" max="5">&nbsp;<span id="trans1_shadow_size_value"></span>px<br>
-            <label for="trans1_shadow_blur">縁取りのぼかし</label>&nbsp;<input type="range" id="trans1_shadow_blur" min="0" max="10">&nbsp;<span id="trans1_shadow_blur_value"></span>px<br>
-            <label for="trans1_shadow_color">縁取りの色</label>&nbsp;<input type="color" id="trans1_shadow_color"><br>
-            <label for="trans1_letter_space">文字間</label>&nbsp;<input type="range" id="trans1_letter_space" min="2" max="10" step="2">&nbsp;<span id="trans1_letter_space_value"></span>px
+            <label for="trans1ShadowSize">縁取りの太さ</label>&nbsp;<input type="range" id="trans1ShadowSize" min="0" max="5">&nbsp;<span id="trans1ShadowSizeValue"></span>px<br>
+            <label for="trans1ShadowBlur">縁取りのぼかし</label>&nbsp;<input type="range" id="trans1ShadowBlur" min="0" max="10">&nbsp;<span id="trans1ShadowBlurValue"></span>px<br>
+            <label for="trans1ShadowColor">縁取りの色</label>&nbsp;<input type="color" id="trans1ShadowColor"><br>
+            <label for="trans1LetterSpace">文字間</label>&nbsp;<input type="range" id="trans1LetterSpace" min="2" max="10" step="2">&nbsp;<span id="trans1LetterSpaceValue"></span>px
           </td>
         </tr>
         <tr>
@@ -229,7 +229,7 @@
             <span class="supplement">2言語翻訳を有効にすると回数制限が半分になりますのでご注意ください</span>
           </td>
           <td>
-            <input type="checkbox" id="trans2_validity">
+            <input type="checkbox" id="trans2Validity">
           </td>
         </tr>
         <tr>
@@ -237,7 +237,7 @@
             <b>翻訳先言語2</b>
           </td>
           <td>
-            <select id="trans2_lang" class="lang_select"></select>
+            <select id="trans2Lang" class="langSelect"></select>
           </td>
         </tr>
         <tr>
@@ -245,9 +245,9 @@
             <b>翻訳結果2のフォント・色・サイズ</b>
           </td>
           <td>
-            <select id="trans2_font" class="font_select"></select>
-            <input type="color" id="trans2_color">
-            <input type="number" id="trans2_font_size" min="0">px
+            <select id="trans2Font" class="fontSelect"></select>
+            <input type="color" id="trans2Color">
+            <input type="number" id="trans2FontSize" min="0">px
           </td>
         </tr>
         <tr>
@@ -256,7 +256,7 @@
             <span class="supplement">ローカルのフォントを設定したい時にフォント名を入力<br>見つからなかった時は上のフォントが使われます</span>
           </td>
           <td>
-            <input id="trans2_custom_font">
+            <input id="trans2CustomFont">
           </td>
         </tr>
         <tr>
@@ -264,7 +264,7 @@
             <b>翻訳結果2のプレフィックス</b>
           </td>
           <td>
-            <input id="trans2_prefix" class="prefix">
+            <input id="trans2Prefix" class="prefix">
           </td>
         </tr>
         <tr>
@@ -273,10 +273,10 @@
             <span class="supplement">翻訳結果の文字の縁取りの太さ、ぼかし、色、字間<br>縁取りの太さ0で縁取りなし、縁取りを太くした時はぼかし入れないと汚いです。</span>
           </td>
           <td>
-            <label for="trans2_shadow_size">縁取りの太さ</label>&nbsp;<input type="range" id="trans2_shadow_size" min="0" max="5">&nbsp;<span id="trans2_shadow_size_value"></span>px<br>
-            <label for="trans2_shadow_blur">縁取りのぼかし</label>&nbsp;<input type="range" id="trans2_shadow_blur" min="0" max="10">&nbsp;<span id="trans2_shadow_blur_value"></span>px<br>
-            <label for="trans2_shadow_color">縁取りの色</label>&nbsp;<input type="color" id="trans2_shadow_color"><br>
-            <label for="trans2_letter_space">文字間</label>&nbsp;<input type="range" id="trans2_letter_space" min="2" max="10" step="2">&nbsp;<span id="trans2_letter_space_value"></span>px
+            <label for="trans2ShadowSize">縁取りの太さ</label>&nbsp;<input type="range" id="trans2ShadowSize" min="0" max="5">&nbsp;<span id="trans2ShadowSizeValue"></span>px<br>
+            <label for="trans2ShadowBlur">縁取りのぼかし</label>&nbsp;<input type="range" id="trans2ShadowBlur" min="0" max="10">&nbsp;<span id="trans2ShadowBlurValue"></span>px<br>
+            <label for="trans2ShadowColor">縁取りの色</label>&nbsp;<input type="color" id="trans2ShadowColor"><br>
+            <label for="trans2LetterSpace">文字間</label>&nbsp;<input type="range" id="trans2LetterSpace" min="2" max="10" step="2">&nbsp;<span id="trans2LetterSpaceValue"></span>px
           </td>
         </tr>
         <tr>
@@ -285,7 +285,7 @@
             <span class="supplement">設定を他のアカウントに持っていきたい時に</span>
           </td>
           <td>
-            <input id="config_json" readonly>
+            <input id="configJson" readonly>
           </td>
         </tr>
         <tr>
@@ -294,7 +294,7 @@
             <span class="supplement">他のアカウントの設定を引き継ぎたい時に<br>リロード入ります</span>
           </td>
           <td>
-            <input id="config_load"><input type="button" id="config_load_button" value="読み込み"><br><span id="config_load_result">&nbsp;</span>
+            <input id="configLoad"><input type="button" id="configLoadButton" value="読み込み"><br><span id="configLoadResult">&nbsp;</span>
           </td>
         </tr>
         <tr>
@@ -303,9 +303,9 @@
             <span class="supplement">設定を既定値に戻します。<br>誤操作防止のためにチェックボックスにチェックを入れてボタンを押してください<br>リロード入ります</span>
           </td>
           <td>
-            <label for="reset_check"><span style="color: red; font-weight:bold;">リセットすると元に戻せません!</span></label>&nbsp;<input type="checkbox" id="reset_check"><br>
-            <input type="button" id="reset_button" value="リセット" style="color: red; font-weight:bold;"><br>
-            <span id="reset_result"></span>
+            <label for="resetCheck"><span style="color: red; font-weight:bold;">リセットすると元に戻せません!</span></label>&nbsp;<input type="checkbox" id="resetCheck"><br>
+            <input type="button" id="resetButton" value="リセット" style="color: red; font-weight:bold;"><br>
+            <span id="resetResult"></span>
           </td>
         </tr>
       </table>
@@ -318,9 +318,9 @@
         href="https://github.com/Charahiro-tan/TranslationGummy" target="_blank">Github</a>
   </footer>
 
-  <?!= HtmlService.createHtmlOutputFromFile("constant").getContent(); ?>
-  <?!= HtmlService.createHtmlOutputFromFile("util").getContent(); ?>
-  <?!= HtmlService.createHtmlOutputFromFile("script").getContent(); ?>
+  <?!= HtmlService.createHtmlOutputFromFile("scripts/constant").getContent(); ?>
+  <?!= HtmlService.createHtmlOutputFromFile("scripts/util").getContent(); ?>
+  <?!= HtmlService.createHtmlOutputFromFile("scripts/script").getContent(); ?>
 
 </body>
 

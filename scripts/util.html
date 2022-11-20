@@ -1,5 +1,5 @@
 <script>
-  const to_number = str => {
+  const toNumber = str => {
     return Number(str.replace(/[０-９]/g, (s) => {
       return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
     }));
@@ -14,16 +14,16 @@
     .translate(...args);
   });
 
-  const displaying_func = (elm, word, prefix) => {
+  const displayingFunc = (elm, word, prefix) => {
     return new Promise(async(resolve) => {
       let w = prefix + word + " ";
       elm.value = w;
       await sleep(2000);
       if(elm.clientWidth < elm.scrollWidth){
-        const scroll_amount = elm.scrollWidth - elm.clientWidth;
-        for(let i = 1; i < scroll_amount; i++){
+        const scrollAmount = elm.scrollWidth - elm.clientWidth;
+        for(let i = 1; i < scrollAmount; i++){
           elm.scrollLeft = i;
-          await sleep(config.scroll_speed*2);
+          await sleep(config.scrollSpeed*2);
         }
         await sleep(1000);
       }
@@ -31,14 +31,14 @@
     });
   };
 
-  const location_reload = () => {
+  const locationReload = () => {
     const result = url => {
       window.open(url, "_top");
     };
     google.script.run.withSuccessHandler(result).getScriptUrl();
   };
 
-  const localstorage_check = () => {
+  const localstorageCheck = () => {
     if(typeof localStorage !== "undefined"){
       try{
         localStorage.setItem("dummy", "1");
@@ -51,15 +51,25 @@
     return false;
   };
 
-  const get_fontFamily = (font, customfont) => {
-    let font_family = `'${fontList[font][0]}', sans-serif`;
-    if(customfont.length){
-      font_family = `'${customfont}', ` + font_family;
+  const recognitionCheck = () => {
+    if(typeof window.SpeechRecognition !== "undefined"){
+      return window.SpeechRecognition;
+    }else if(typeof window.webkitSpeechRecognition !== "undefined"){
+      return window.webkitSpeechRecognition;
+    }else{
+      return null;
     }
-    return font_family;
+  }
+
+  const getFontFamily = (font, customfont) => {
+    let fontFamily = `'${fontList[font][0]}', sans-serif`;
+    if(customfont.length){
+      fontFamily = `'${customfont}', ` + fontFamily;
+    }
+    return fontFamily;
   };
 
-  const get_shadow = (shadow, blur, color) => {
+  const getShadow = (shadow, blur, color) => {
     let css = ""
     if(shadow === 0){
       return css;
@@ -70,13 +80,13 @@
     return css.slice(0, -1);
   };
 
-  const get_textarea_height = (fontsize, fontfamily) => {
+  const getTextareaHeight = (fontsize, fontfamily) => {
     elms.testarea.style.fontSize = `${fontsize}px`;
     elms.testarea.style.fontFamily = fontfamily;
     return elms.testarea.scrollHeight;
   };
 
-  const get_lang_iso639 = () => {
+  const getLangIso639 = () => {
     let result = [];
     for(const l of langList){
       if(l.length == 2){
@@ -99,7 +109,7 @@
     }
 
     enpty(){
-      return this._array.length? false:true;
+      return this._array.length ? false : true;
     }
 
     put(s){

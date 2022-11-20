@@ -1,0 +1,707 @@
+<script>
+  let recogMute = true;
+  let config = {};
+  let lsUse = false;
+  let nowTranslating = false;
+  let nowDisplaying = false;
+  let srcLang = "";
+  const elms = {};
+  const transQ = new Queue();
+  const dispQ = new Queue();
+  const langIso639 = new Set(getLangIso639());
+  const SpeechRecognition = recognitionCheck();
+  const recognition = SpeechRecognition ? new SpeechRecognition() : new Object();
+
+  // 表示
+  const displaying = async() => {
+    nowDisplaying = true;
+    while(!dispQ.enpty()){
+      const result = dispQ.get();
+      let func = [];
+      if(!config.recogResultHidden && !config.interimResults){
+        func.push(displayingFunc(elms.display1, result.text, config.recogPrefix));
+      }
+      if(result[config.trans1Lang].code === 200){
+        func.push(displayingFunc(elms.display2, result[config.trans1Lang].result, config.trans1Prefix));
+      }
+      if(config.trans2Validity){
+        if(result[config.trans2Lang].code === 200){
+          func.push(displayingFunc(elms.display3, result[config.trans2Lang].result, config.trans2Prefix));
+        }
+      }
+      await Promise.all(func);
+      await sleep(1000);
+      if(!config.recogResultHidden && !config.interimResults){
+        elms.display1.value = "";
+      }
+      elms.display2.value = "";
+      if(config.trans2Validity){
+        elms.display3.value = "";
+      }
+      await sleep(100);
+    }
+    nowDisplaying = false;
+  };
+
+  // 翻訳
+  const getSrclang = () => {
+    if(langIso639.has(config.recognitionLang)){
+      srcLang = cofnig.recognitionLang;
+      return;
+    }
+    const lang = config.recognitionLang.split("-")[0];
+    srcLang = langIso639.has(lang) ? lang : "";
+  };
+
+  const gasTrans = async() => {
+    nowTranslating = true;
+    while(!transQ.enpty()){
+      const word = transQ.get();
+      
+      let tgt = [config.trans1Lang];
+      if(config.trans2Validity){
+        tgt.push(config.trans2Lang);
+      }
+
+      const translated = await translate(word, tgt, srcLang);
+      if(translated.status === 200){
+       dispQ.put(translated);
+       if(!nowDisplaying){
+         displaying();
+       }
+      }
+
+      let logText = "";
+      logText += `[${translated.src}]${translated.text} → `;
+      for(const lang of tgt){
+        const result = translated[lang];
+        if(result.code === 200){
+          logText += `[${lang}]${result.result}`;
+        }else if(result.code === 400){
+          logText += `[${lang}]⚠なんらかのエラーで結果が返ってきませんでした`;
+        }else if(result.code === 429){
+          logText += `[${lang}]⚠1日に翻訳できる回数の制限に到達しました`;
+        }
+      }
+      elms.logArea.value = elms.logArea.value + logText + "\n";
+      elms.logArea.scrollTop = elms.logArea.scrollHeight;
+    }
+    nowTranslating = false;
+  };
+
+  // 音声認識
+  const recogStart = () => {
+    if(!recogMute){
+      recognition.interimResults = config.interimResults;
+      recognition.lang = config.recognitionLang;
+      recognition.continuous = config.recognitionMode;
+      recognition.start();
+    }
+  };
+
+  recognition.onstart = () => {
+    elms.status.value = "待機中";
+  };
+  
+  recognition.onspeechstart = () => {
+    elms.status.value = "認識中";
+  };
+
+  recognition.onresult = async(event) => {
+    let result = "";
+    if(!config.recogResultHidden && config.interimResults){
+      for(const res of event.results){
+        if(!res.isFinal){
+          result += res[0].transcript;
+        }
+      }
+      if(event.results[event.resultIndex].isFinal){
+        result = event.results[event.resultIndex][0].transcript;
+      }
+      elms.display1.value = config.recogPrefix + result + " ";
+      elms.display1.scrollLeft = elms.display1.scrollWidth;
+    }
+    if(event.results[event.resultIndex].isFinal){
+      transQ.put(event.results[event.resultIndex][0].transcript);
+      if(!nowTranslating){
+        gasTrans();
+      }
+      if(!config.recogResultHidden && config.interimResults){
+        await sleep(2000);
+        if(elms.display1.value === config.recogPrefix + result + " "){
+          elms.display1.value = "";
+        }
+      }
+    }
+  };
+
+  recognition.onerror = () => {
+    recognition.stop();
+  };
+
+  recognition.onend = () => {
+    recogStart();
+  };
+
+  // elements取得
+  const getElms = () => {
+    const ids = document.querySelectorAll("[id]");
+    for(const id of ids){
+      elms[id.id] = id;
+    }
+  };
+
+  // local storage
+  const lsSave = () => {
+    const json = JSON.stringify(config);
+    elms.configJson.value = json;
+    if(lsUse){
+      localStorage.setItem("TranslationGummyConfig", json);
+    }
+  };
+
+  const lsLoad = () => {
+    const json = localStorage.getItem("TranslationGummyConfig");
+    config = JSON.parse(json);
+    if(!elms.configJson.value.length){
+      elms.configJson.value = json;
+    }
+  };
+
+  // config読み込み
+  const loadConfig = () => {
+    lsUse = localstorageCheck();
+    if(lsUse){
+      lsLoad();
+      if(!config){
+        config = defaultConfig;
+        lsSave();
+      }else{
+        const marged = {...defaultConfig, ...config};
+        marged.configVer = defaultConfig.configVer;
+        config = marged;
+        lsSave();
+      }
+      elms.localstorageResult.innerHTML = "設定はブラウザに保存されます";
+    }else{
+      config = defaultConfig;
+      elms.localstorageResult.innerHTML = "このブラウザでは設定を保存できません";
+      elms.localstorageResult.style.color = "red";
+    }
+  };
+
+
+  // selectにオプションセット
+  const setSelectMenu = () => {
+    const langSelect = document.getElementsByClassName("langSelect");
+    const langListSorted = [...langList].sort((a, b) => {
+      const langA = a[0].toUpperCase();
+      const langB = b[0].toUpperCase();
+      if(langA < langB){
+        return -1;
+      }
+      if(langA > langB){
+        return 1;
+      }
+      return 0;
+    });
+    for(const elm of langSelect){
+      for(const lang of langListSorted){
+        const opt = document.createElement("option");
+        opt.value = lang[0];
+        opt.innerHTML = `[${lang[0]}] ${lang[1]}`;
+        elm.appendChild(opt);
+      }
+    }
+
+    const fontSelect = document.getElementsByClassName("fontSelect");
+    for(const elm of fontSelect){
+      for(const [k, v] of Object.entries(fontList)){
+        const opt = document.createElement("option");
+        opt.value = k;
+        opt.innerHTML = v[1];
+        elm.appendChild(opt);
+      }
+    }
+  };
+
+  // スタイルの初期化
+  const styleInit = () => {
+    for(const elm of Object.values(elms)){
+      const value = config[elm.id];
+      if(typeof value === "undefined"){
+        continue;
+      }else if(typeof value === "boolean"){
+        elm.checked = value;
+      }else{
+        elm.value = value;
+      }
+    }
+
+    elms.displayArea.style.backgroundColor = config.backgroundColor;
+
+    for(const elm of document.getElementsByClassName("displaySpacing")){
+      elm.style.height = `${config.displayAreaSpacing}px`;
+    }
+
+    elms.display3.style.visibility = config.trans2Validity ? "visible" : "hidden";
+
+    elms.display1.style.fontFamily = getFontFamily(config.recogFont, config.recogCustomFont);
+    elms.display2.style.fontFamily = getFontFamily(config.trans1Font, config.trans1CustomFont);
+    elms.display3.style.fontFamily = getFontFamily(config.trans2Font, config.trans2CustomFont);
+    elms.display1.style.color = config.recogColor;
+    elms.display2.style.color = config.trans1Color;
+    elms.display3.style.color = config.trans2Color;
+    elms.display1.style.fontSize = `${config.recogFontSize}px`;
+    elms.display2.style.fontSize = `${config.trans1FontSize}px`;
+    elms.display3.style.fontSize = `${config.trans2FontSize}px`;
+    elms.display1.style.textShadow = getShadow(config.recogShadowSize, config.recogShadowBlur, config.recogShadowColor);
+    elms.display2.style.textShadow = getShadow(config.trans1ShadowSize, config.trans1ShadowBlur, config.trans1ShadowColor);
+    elms.display3.style.textShadow = getShadow(config.trans2ShadowSize, config.trans2ShadowBlur, config.trans2ShadowColor);
+    elms.display1.style.letterSpacing = `${config.recogLetterSpace}px`;
+    elms.display2.style.letterSpacing = `${config.trans1LetterSpace}px`;
+    elms.display3.style.letterSpacing = `${config.trans2LetterSpace}px`;
+    elms.display1.style.width = `${config.recogAreaWidth}px`;
+    elms.display1.style.height = `${config.recogAreaHeight}px`;
+    elms.display2.style.width = `${config.trans1AreaWidth}px`;
+    elms.display2.style.height = `${config.trans1AreaHeight}px`;
+    elms.display3.style.width = `${config.trans2AreaWidth}px`;
+    elms.display3.style.height = config.trans2Validity ? `${config.trans2AreaHeight}px` : "0px";
+
+    elms.scrollSpeedValue.innerHTML = elms.scrollSpeed.value;
+    elms.recogShadowSizeValue.innerHTML = elms.recogShadowSize.value;
+    elms.recogShadowBlurValue.innerHTML = elms.recogShadowBlur.value;
+    elms.recogLetterSpaceValue.innerHTML = elms.recogLetterSpace.value;
+    elms.trans1ShadowSizeValue.innerHTML = elms.trans1ShadowSize.value;
+    elms.trans1ShadowBlurValue.innerHTML = elms.trans1ShadowBlur.value;
+    elms.trans1LetterSpaceValue.innerHTML = elms.trans1LetterSpace.value;
+    elms.trans2ShadowSizeValue.innerHTML = elms.trans2ShadowSize.value;
+    elms.trans2ShadowBlurValue.innerHTML = elms.trans2ShadowBlur.value;
+    elms.trans2LetterSpaceValue.innerHTML = elms.trans2LetterSpace.value;
+    elms.muteButton.value = recogMute ? "ミュート解除" : "ミュート";
+    elms.status.value = recogMute ? "ミュート中" : "";
+    elms.status.style.color = recogMute ? "red" : "";
+
+    elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+  };
+
+  // イベントリスナー
+  const addEvent = () => {
+    elms.muteButton.addEventListener("click", () => {
+      if(!SpeechRecognition){
+        return;
+      }
+      if(recogMute){
+        elms.status.style.color = "";
+        elms.status.value = "";
+        recogMute = false;
+        elms.muteButton.value = "ミュート";
+        recogStart();
+      }else{
+        recogMute = true;
+        recognition.stop();
+        elms.status.value = "ミュート中";
+        elms.status.style.color = "red";
+        elms.muteButton.value = "ミュート解除";
+      };
+    });
+    
+    elms.logClear.addEventListener("click", () => {
+      elms.logArea.value = "";
+    });
+
+    elms.backgroundColor.addEventListener("change", () => {
+      config.backgroundColor = elms.backgroundColor.value;
+      lsSave();
+      elms.displayArea.style.backgroundColor = config.backgroundColor;
+    });
+
+    elms.displayAreaColorValidity.addEventListener("change", () => {
+      for(const elm of document.getElementsByClassName("displayRow")){
+        if(elms.displayAreaColorValidity.checked){
+          elm.style.backgroundColor = config.displayAreaColor;
+        }else{
+          elm.style.backgroundColor = "transparent";
+        }
+      }
+    });
+
+    elms.displayAreaColor.addEventListener("change", () => {
+      config.displayAreaColor = elms.displayAreaColor.value;
+      lsSave();
+    });
+
+    elms.displayAreaDummy.addEventListener("click", () => {
+      for(const elm of document.getElementsByClassName("displayRow")){
+        elm.value = "ABCDEFGabcdefgあいうえお阿伊宇江於";
+      }
+    });
+
+    elms.displayAreaDummyClear.addEventListener("click", () => {
+      for(const elm of document.getElementsByClassName("displayRow")){
+        elm.value = "";
+      }
+    });
+
+    elms.recogAreaWidth.addEventListener("change", () => {
+      if(elms.recogAreaWidth.value === ""){
+        elms.recogAreaWidth.value = config.recogAreaWidth;
+        return;
+      }
+      config.recogAreaWidth = toNumber(elms.recogAreaWidth.value);
+      lsSave();
+      elms.display1.style.width = `${config.recogAreaWidth}px`;
+    });
+
+    elms.trans1AreaWidth.addEventListener("change", () => {
+      if(elms.trans1AreaWidth.value === ""){
+        elms.trans1AreaWidth.value = config.trans1AreaWidth;
+        return;
+      }
+      config.trans1AreaWidth = toNumber(elms.trans1AreaWidth.value);
+      lsSave();
+      elms.display2.style.width = `${config.trans1AreaWidth}px`;
+    });
+
+    elms.trans2AreaWidth.addEventListener("change", () => {
+      if(elms.trans2AreaWidth.value === ""){
+        elms.trans2AreaWidth.value = config.trans2AreaWidth;
+        return;
+      };
+      config.trans2AreaWidth = toNumber(elms.trans2AreaWidth.value);
+      lsSave();
+      elms.display3.style.width = `${config.trans2AreaWidth}px`;
+    });
+
+    elms.displayAreaSpacing.addEventListener("change", () => {
+      if(elms.displayAreaSpacing.value === ""){
+        elms.displayAreaSpacing.value = config.displayAreaSpacing;
+        return;
+      }
+      config.displayAreaSpacing = toNumber(elms.displayAreaSpacing.value);
+      lsSave();
+      for(const elm of document.getElementsByClassName("displaySpacing")){
+        elm.style.height = `${config.displayAreaSpacing}px`;
+      }
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.scrollSpeed.addEventListener("change", () => {
+      config.scrollSpeed = toNumber(elms.scrollSpeed.value);
+      elms.scrollSpeedValue.innerHTML = elms.scrollSpeed.value;
+      lsSave();
+    });
+
+    elms.recognitionMode.addEventListener("change", () => {
+      config.recognitionMode = elms.recognitionMode.checked;
+      lsSave();
+      recognition.stop();
+    });
+
+    elms.recognitionLang.addEventListener("change", () => {
+      config.recognitionLang = elms.recognitionLang.value;
+      lsSave();
+      getSrclang();
+      recognition.stop();
+    });
+
+    elms.interimResults.addEventListener("change", () => {
+      config.interimResults = elms.interimResults.checked;
+      lsSave();
+      recognition.stop();
+    });
+
+    elms.recogResultHidden.addEventListener("change", () => {
+      config.recogResultHidden = elms.recogResultHidden.checked;
+      lsSave();
+      recognition.stop();
+    });
+
+    elms.recogFont.addEventListener("change", () => {
+      config.recogFont = elms.recogFont.value;
+      elms.display1.style.fontFamily = getFontFamily(config.recogFont, config.recogCustomFont);
+      config.recogAreaHeight = getTextareaHeight(config.recogFontSize, elms.display1.style.fontFamily);
+      lsSave();
+      elms.display1.style.height = `${config.recogAreaHeight}px`;
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.recogColor.addEventListener("change", () => {
+      config.recogColor = elms.recogColor.value;
+      lsSave();
+      elms.display1.style.color = config.recogColor;
+    });
+
+    elms.recogFontSize.addEventListener("change", () => {
+      if(elms.recogFontSize.value === ""){
+        elms.recogFontSize.value = config.recogFontSize;
+        return;
+      }
+      config.recogFontSize = toNumber(elms.recogFontSize.value);
+      config.recogAreaHeight = getTextareaHeight(config.recogFontSize, elms.display1.style.fontFamily);
+      lsSave();
+      elms.display1.style.fontSize = `${config.recogFontSize}px`;
+      elms.display1.style.height = `${config.recogAreaHeight}px`;
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.recogShadowSize.addEventListener("change", () => {
+      config.recogShadowSize = toNumber(elms.recogShadowSize.value);
+      lsSave();
+      elms.recogShadowSizeValue.innerHTML = config.recogShadowSize;
+      elms.display1.style.textShadow = getShadow(config.recogShadowSize, config.recogShadowBlur, config.recogShadowColor);
+    });
+
+    elms.recogShadowBlur.addEventListener("change", () => {
+      config.recogShadowBlur = toNumber(elms.recogShadowBlur.value);
+      lsSave();
+      elms.recogShadowBlurValue.innerHTML = config.recogShadowBlur;
+      elms.display1.style.textShadow = getShadow(config.recogShadowSize, config.recogShadowBlur, config.recogShadowColor);
+    });
+
+    elms.recogShadowColor.addEventListener("change", () => {
+      config.recogShadowColor = elms.recogShadowColor.value;
+      lsSave();
+      elms.display1.style.textShadow = getShadow(config.recogShadowSize, config.recogShadowBlur, config.recogShadowColor);
+    });
+
+    elms.recogLetterSpace.addEventListener("change", () => {
+      config.recogLetterSpace = toNumber(elms.recogLetterSpace.value);
+      lsSave();
+      elms.recogLetterSpaceValue.innerHTML = config.recogLetterSpace;
+      elms.display1.style.letterSpacing = `${config.recogLetterSpace}px`;
+    });
+
+    elms.recogCustomFont.addEventListener("change", () => {
+      config.recogCustomFont = elms.recogCustomFont.value;
+      elms.display1.style.fontFamily = getFontFamily(config.recogFont, config.recogCustomFont);
+      config.recogAreaHeight = getTextareaHeight(config.recogFontSize, elms.display1.style.fontFamily);
+      lsSave();
+      elms.display1.style.height = `${config.recogAreaHeight}px`;
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.recogPrefix.addEventListener("change", () => {
+      config.recogPrefix = elms.recogPrefix.value;
+      lsSave();
+    });
+
+    elms.trans1Lang.addEventListener("change", () => {
+      config.trans1Lang = elms.trans1Lang.value;
+      lsSave();
+    });
+
+    elms.trans1Font.addEventListener("change", () => {
+      config.trans1Font = elms.trans1Font.value;
+      elms.display2.style.fontFamily = getFontFamily(config.trans1Font, config.trans1CustomFont);
+      config.trans1AreaHeight = getTextareaHeight(config.trans1FontSize, elms.display2.style.fontFamily);
+      lsSave();
+      elms.display2.style.height = `${config.trans1AreaHeight}px`;
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.trans1Color.addEventListener("change", () => {
+      config.trans1Color = elms.trans1Color.value;
+      lsSave();
+      elms.display2.style.color = config.trans1Color;
+    });
+
+    elms.trans1FontSize.addEventListener("change", () => {
+      if(elms.trans1FontSize.value === ""){
+        elms.trans1FontSize.value = config.trans1FontSize;
+        return;
+      }
+      config.trans1FontSize = toNumber(elms.trans1FontSize.value);
+      config.trans1AreaHeight = getTextareaHeight(config.trans1FontSize, elms.display2.style.fontFamily);
+      lsSave();
+      elms.display2.style.fontSize = `${config.trans1FontSize}px`;
+      elms.display2.style.height = `${config.trans1AreaHeight}px`;
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.trans1ShadowSize.addEventListener("change", () => {
+      config.trans1ShadowSize = toNumber(elms.trans1ShadowSize.value);
+      lsSave();
+      elms.trans1ShadowSizeValue.innerHTML = config.trans1ShadowSize;
+      elms.display2.style.textShadow = getShadow(config.trans1ShadowSize, config.trans1ShadowBlur, config.trans1ShadowColor);
+    });
+
+    elms.trans1ShadowBlur.addEventListener("change", () => {
+      config.trans1ShadowBlur = toNumber(elms.trans1ShadowBlur.value);
+      lsSave();
+      elms.trans1ShadowBlurValue.innerHTML = config.trans1ShadowBlur;
+      elms.display2.style.textShadow = getShadow(config.trans1ShadowSize, config.trans1ShadowBlur, config.trans1ShadowColor);
+    });
+
+    elms.trans1ShadowColor.addEventListener("change", () => {
+      config.trans1ShadowColor = elms.trans1ShadowColor.value;
+      lsSave();
+      elms.display2.style.textShadow = getShadow(config.trans1ShadowSize, config.trans1ShadowBlur, config.trans1ShadowColor);
+    });
+
+    elms.trans1LetterSpace.addEventListener("change", () => {
+      config.trans1LetterSpace = toNumber(elms.trans1LetterSpace.value);
+      lsSave();
+      elms.trans1LetterSpaceValue.innerHTML = config.trans1LetterSpace
+      elms.display2.style.letterSpacing = `${config.trans1LetterSpace}px`;
+    });
+
+    elms.trans1CustomFont.addEventListener("change", () => {
+      config.trans1CustomFont = elms.trans1CustomFont.value;
+      elms.display2.style.fontFamily = getFontFamily(config.trans1Font, config.trans1CustomFont);
+      config.trans1AreaHeight = getTextareaHeight(config.trans1FontSize, elms.display2.style.fontFamily);
+      lsSave();
+      elms.display2.style.height = `${config.trans1AreaHeight}px`;
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.trans1Prefix.addEventListener("change", () => {
+      config.trans1Prefix = elms.trans1Prefix.value;
+      lsSave();
+    });
+
+    elms.trans2Validity.addEventListener("change", () => {
+      config.trans2Validity = elms.trans2Validity.checked;
+      lsSave();
+      elms.display3.style.visibility = config.trans2Validity ? "visible" : "hidden";
+      elms.display3.style.height = config.trans2Validity ? `${config.trans2AreaHeight}px` : "0px";
+    })
+
+    elms.trans2Lang.addEventListener("change", () => {
+      config.trans2Lang = elms.trans2Lang.value;
+      lsSave();
+    });
+
+    elms.trans2Font.addEventListener("change", () => {
+      config.trans2Font = elms.trans2Font.value;
+      elms.display3.style.fontFamily = getFontFamily(config.trans2Font, config.trans2CustomFont);
+      config.trans2AreaHeight = getTextareaHeight(config.trans2FontSize, elms.display3.style.fontFamily);
+      lsSave();
+      elms.display3.style.height = config.trans2Validity ? `${config.trans2AreaHeight}px` : "0px";
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.trans2Color.addEventListener("change", () => {
+      config.trans2Color = elms.trans2Color.value;
+      lsSave();
+      elms.display3.style.color = config.trans2Color;
+    });
+
+    elms.trans2FontSize.addEventListener("change", () => {
+      if(elms.trans2FontSize.value === ""){
+        elms.trans2FontSize.value = config.trans2FontSize;
+        return;
+      }
+      config.trans2FontSize = toNumber(elms.trans2FontSize.value);
+      config.trans2AreaHeight = getTextareaHeight(config.trans2FontSize, elms.display3.style.fontFamily);
+      lsSave();
+      elms.display3.style.fontSize = `${config.trans2FontSize}px`;
+      elms.display3.style.height = config.trans2Validity ? `${config.trans2AreaHeight}px` : "0px";
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.trans2ShadowSize.addEventListener("change", () => {
+      config.trans2ShadowSize = toNumber(elms.trans2ShadowSize.value);
+      lsSave();
+      elms.trans2ShadowSizeValue.innerHTML = config.trans2ShadowSize;
+      elms.display3.style.textShadow = getShadow(config.trans2ShadowSize, config.trans2ShadowBlur, config.trans2ShadowColor);
+    });
+
+    elms.trans2ShadowBlur.addEventListener("change", () => {
+      config.trans2ShadowBlur = toNumber(elms.trans2ShadowBlur.value);
+      lsSave();
+      elms.trans2ShadowBlurValue.innerHTML = config.trans2ShadowBlur;
+      elms.display3.style.textShadow = getShadow(config.trans2ShadowSize, config.trans2ShadowBlur, config.trans2ShadowColor);
+    });
+
+    elms.trans2ShadowColor.addEventListener("change", () => {
+      config.trans2ShadowColor = elms.trans2ShadowColor.value;
+      lsSave();
+      elms.display3.style.textShadow = getShadow(config.trans2ShadowSize, config.trans2ShadowBlur, config.trans2ShadowColor);
+    });
+
+    elms.trans2LetterSpace.addEventListener("change", () => {
+      config.trans2LetterSpace = toNumber(elms.trans2LetterSpace.value);
+      lsSave();
+      elms.trans2LetterSpaceValue.innerHTML = config.trans2LetterSpace
+      elms.display3.style.letterSpacing = `${config.trans2LetterSpace}px`;
+    });
+
+    elms.trans2CustomFont.addEventListener("change", () => {
+      config.trans2CustomFont = elms.trans2CustomFont.value;
+      elms.display3.style.fontFamily = getFontFamily(config.trans2Font, config.trans2CustomFont);
+      config.trans2AreaHeight = getTextareaHeight(config.trans2FontSize, elms.display3.style.fontFamily);
+      lsSave();
+      elms.display3.style.height = config.trans2Validity ? `${config.trans2AreaHeight}px` : "0px";
+      elms.settings.style.marginTop = `${elms.displayArea.offsetHeight}px`;
+    });
+
+    elms.trans2Prefix.addEventListener("change", () => {
+      config.trans2Prefix = elms.trans2Prefix.value;
+      lsSave();
+    });
+
+    elms.configJson.addEventListener("click", () => {
+      elms.configJson.select();
+    });
+
+    elms.configLoadButton.addEventListener("click", async() => {
+      if(!elms.configLoad.value.length){
+        elms.configLoadResult.innerHTML = "設定内容を入力してください";
+        elms.configLoadResult.style.color = "red";
+        await sleep(3000);
+        elms.configLoadResult.innerHTML = "";
+        return;
+      }else{
+        try{
+          const json = JSON.parse(elms.configLoad.value);
+          config = {...defaultConfig, ...json};
+          lsSave();
+          elms.configLoadResult.innerHTML = "設定を読み込みました。リロードします。";
+          elms.configLoadResult.style.color = "";
+          await sleep(1000);
+          locationReload();
+        }catch(e){
+          console.log(e);
+          elms.configLoadResult.innerHTML = "エラーが発生しました。";
+          elms.configLoadResult.style.color = "red";
+          await sleep(3000);
+          elms.configLoadResult.innerHTML = "";
+        }
+      }
+    });
+
+    elms.resetButton.addEventListener("click", async() => {
+      if(!elms.resetCheck.checked){
+        elms.resetResult.innerHTML = "リセットする場合はチェックボックスにチェックを入れて下さい";
+        elms.resetResult.style.color = "red";
+        await sleep(1000);
+        elms.resetResult.innerHTML = "";
+        return;
+      }
+      config = defaultConfig;
+      lsSave();
+      elms.resetResult.innerHTML = "リセットしました。リロードします。";
+      elms.resetResult.style.color = "";
+      await sleep(1000);
+      locationReload();
+    });
+  };
+
+  const main = () => {
+    getElms();
+    loadConfig();
+    setSelectMenu();
+    styleInit();
+    addEvent();
+    getSrclang();
+    if(SpeechRecognition){
+      if(!recogMute){
+        recogStart();
+      }
+    }else{
+      elms.display1.value = "このブラウザは音声認識に対応していません";
+    }
+  };
+  main();
+</script>
