@@ -1,19 +1,19 @@
 <script>
-  let recogMute = true;
-  let config = {};
-  let lsUse = false;
-  let nowTranslating = false;
-  let nowDisplaying = false;
-  let srcLang = "";
   const elms = {};
   const transQ = new Queue();
   const dispQ = new Queue();
   const langIso639 = new Set(getLangIso639());
   const SpeechRecognition = recognitionCheck();
   const recognition = SpeechRecognition ? new SpeechRecognition() : new Object();
+  let recogMute = true;
+  let config = {};
+  let lsUse = false;
+  let nowTranslating = false;
+  let nowDisplaying = false;
+  let srcLang = "";
 
   // 表示
-  const displaying = async() => {
+  const displaying = async () => {
     nowDisplaying = true;
     while(!dispQ.enpty()){
       const result = dispQ.get();
@@ -53,7 +53,7 @@
     srcLang = langIso639.has(lang) ? lang : "";
   };
 
-  const gasTrans = async() => {
+  const gasTrans = async () => {
     nowTranslating = true;
     while(!transQ.enpty()){
       const word = transQ.get();
@@ -80,7 +80,7 @@
         }else if(result.code === 400){
           logText += `[${lang}]⚠なんらかのエラーで結果が返ってきませんでした`;
         }else if(result.code === 429){
-          logText += `[${lang}]⚠1日に翻訳できる回数の制限に到達しました`;
+          logText += ` [${lang}]⚠1日に翻訳できる回数の制限に到達しました`;
         }
       }
       elms.logArea.value = elms.logArea.value + logText + "\n";
@@ -107,7 +107,7 @@
     elms.status.value = "認識中";
   };
 
-  recognition.onresult = async(event) => {
+  recognition.onresult = async (event) => {
     let result = "";
     if(!config.recogResultHidden && config.interimResults){
       for(const res of event.results){
@@ -645,7 +645,7 @@
       elms.configJson.select();
     });
 
-    elms.configLoadButton.addEventListener("click", async() => {
+    elms.configLoadButton.addEventListener("click", async () => {
       if(!elms.configLoad.value.length){
         elms.configLoadResult.innerHTML = "設定内容を入力してください";
         elms.configLoadResult.style.color = "red";
@@ -671,7 +671,7 @@
       }
     });
 
-    elms.resetButton.addEventListener("click", async() => {
+    elms.resetButton.addEventListener("click", async () => {
       if(!elms.resetCheck.checked){
         elms.resetResult.innerHTML = "リセットする場合はチェックボックスにチェックを入れて下さい";
         elms.resetResult.style.color = "red";

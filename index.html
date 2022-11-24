@@ -63,31 +63,21 @@
         </tr>
         <tr>
           <td>
-            <b>認識エリアの幅</b><br><span class="supplement">1行目の幅です</span>
+            <b>表示エリアの幅</b>
           </td>
           <td>
-            <input type="number" id="recogAreaWidth" min="0">px
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>翻訳エリア1の幅</b><br><span class="supplement">2行目の幅です</span>
+            認識結果<br><input type="number" id="recogAreaWidth" min="0">px
           </td>
           <td>
-            <input type="number" id="trans1AreaWidth" min="0">px
+            翻訳1<br><input type="number" id="trans1AreaWidth" min="0">px
+          </td>
+          <td>
+            翻訳2<br><input type="number" id="trans2AreaWidth" min="0">px
           </td>
         </tr>
         <tr>
           <td>
-            <b>翻訳エリア2の幅</b><br><span class="supplement">3行目の幅です(2言語翻訳を有効にした時の2言語目)</span>
-          </td>
-          <td>
-            <input type="number" id="trans2AreaWidth" min="0">px
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>表示エリアの行間</b><br><span class="supplement">表示エリアの行間です</span>
+            <b>表示エリアの行間</b>
           </td>
           <td>
             <input type="number" id="displayAreaSpacing" min="0">px
@@ -121,7 +111,7 @@
         </tr>
         <tr>
           <td>
-            <b>途中結果を表示する</b>
+            <b>途中結果を表示する</b><br><span class="supplement">逐一認識結果を表示するか、認識が終わってから表示するかの設定です</span>
           </td>
           <td>
             <input type="checkbox" id="interimResults">
@@ -137,90 +127,10 @@
         </tr>
         <tr>
           <td>
-            <b>音声認識結果のフォント・色・サイズ</b><br>
-            <span class="supplement">すべてGoogleFontsより</span>
-          </td>
-          <td>
-            <select id="recogFont" class="fontSelect"></select>
-            <input type="color" id="recogColor">
-            <input type="number" id="recogFontSize" min="0">px
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>音声認識結果のカスタムフォント</b><br>
-            <span class="supplement">ローカルのフォントを設定したい時にフォント名を入力<br>見つからなかった時は上のフォントが使われます</span>
-          </td>
-          <td>
-            <input id="recogCustomFont">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>音声認識結果のプレフィックス</b><br>
-            <span class="supplement">結果にプレフィックスを付けたい場合に<br>例: [ja] 等...</span>
-          </td>
-          <td>
-            <input id="recogPrefix" class="prefix">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>音声認識結果の文字の縁取り</b><br>
-            <span class="supplement">音声認識結果の文字の縁取りの太さ、ぼかし、色、字間<br>縁取りの太さ0で縁取りなし、縁取りを太くした時はぼかし入れないと汚いです。</span>
-          </td>
-          <td>
-            <label for="recogShadowSize">縁取りの太さ</label>&nbsp;<input type="range" id="recogShadowSize" min="0" max="5">&nbsp;<span id="recogShadowSizeValue"></span>px<br>
-            <label for="recogShadowBlur">縁取りのぼかし</label>&nbsp;<input type="range" id="recogShadowBlur" min="0" max="10">&nbsp;<span id="recogShadowBlurValue"></span>px<br>
-            <label for="recogShadowColor">縁取りの色</label>&nbsp;<input type="color" id="recogShadowColor"><br>
-            <label for="recogLetterSpace">文字間</label>&nbsp;<input type="range" id="recogLetterSpace" min="2" max="10" step="2">&nbsp;<span id="recogLetterSpaceValue"></span>px
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>翻訳先言語1</b>
+            <b>翻訳言語1</b>
           </td>
           <td>
             <select id="trans1Lang" class="langSelect"></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>翻訳結果1のフォント・色・サイズ</b>
-          </td>
-          <td>
-            <select id="trans1Font" class="fontSelect"></select>
-            <input type="color" id="trans1Color">
-            <input type="number" id="trans1FontSize" min="0">px
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>翻訳結果1のカスタムフォント</b><br>
-            <span class="supplement">ローカルのフォントを設定したい時にフォント名を入力<br>見つからなかった時は上のフォントが使われます</span>
-          </td>
-          <td>
-            <input id="trans1CustomFont">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>翻訳結果1のプレフィックス</b>
-          </td>
-          <td>
-            <input id="trans1Prefix" class="prefix">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>翻訳結果1の文字の縁取り</b><br>
-            <span class="supplement">翻訳結果の文字の縁取りの太さ、ぼかし、色、字間<br>縁取りの太さ0で縁取りなし、縁取りを太くした時はぼかし入れないと汚いです。</span>
-          </td>
-          <td>
-            <label for="trans1ShadowSize">縁取りの太さ</label>&nbsp;<input type="range" id="trans1ShadowSize" min="0" max="5">&nbsp;<span id="trans1ShadowSizeValue"></span>px<br>
-            <label for="trans1ShadowBlur">縁取りのぼかし</label>&nbsp;<input type="range" id="trans1ShadowBlur" min="0" max="10">&nbsp;<span id="trans1ShadowBlurValue"></span>px<br>
-            <label for="trans1ShadowColor">縁取りの色</label>&nbsp;<input type="color" id="trans1ShadowColor"><br>
-            <label for="trans1LetterSpace">文字間</label>&nbsp;<input type="range" id="trans1LetterSpace" min="2" max="10" step="2">&nbsp;<span id="trans1LetterSpaceValue"></span>px
           </td>
         </tr>
         <tr>
@@ -229,54 +139,89 @@
             <span class="supplement">2言語翻訳を有効にすると回数制限が半分になりますのでご注意ください</span>
           </td>
           <td>
-            <input type="checkbox" id="trans2Validity">
+            <label for="trans2Validity">有効にする</label>&nbsp;&nbsp;<input type="checkbox" id="trans2Validity"><br>
+            言語&nbsp;&nbsp;<select id="trans2Lang" class="langSelect"></select>
           </td>
         </tr>
         <tr>
           <td>
-            <b>翻訳先言語2</b>
+            <b>フォント・サイズ・色</b><br>
+            <span class="supplement">すべてGoogleFontsより</span>
           </td>
           <td>
-            <select id="trans2Lang" class="langSelect"></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>翻訳結果2のフォント・色・サイズ</b>
+            認識結果<br>
+            フォント&nbsp;&nbsp;<select id="recogFont" class="fontSelect"></select><br>
+            大きさ&nbsp;&nbsp;<input type="number" id="recogFontSize" min="0">px<br>
+            色&nbsp;&nbsp;<input type="color" id="recogColor">
           </td>
           <td>
-            <select id="trans2Font" class="fontSelect"></select>
-            <input type="color" id="trans2Color">
-            <input type="number" id="trans2FontSize" min="0">px
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>翻訳結果2のカスタムフォント</b><br>
-            <span class="supplement">ローカルのフォントを設定したい時にフォント名を入力<br>見つからなかった時は上のフォントが使われます</span>
+            翻訳1<br>
+            フォント&nbsp;&nbsp;<select id="trans1Font" class="fontSelect"></select><br>
+            大きさ&nbsp;&nbsp;<input type="number" id="trans1FontSize" min="0">px<br>
+            色&nbsp;&nbsp;<input type="color" id="trans1Color">
           </td>
           <td>
-            <input id="trans2CustomFont">
+            翻訳2<br>
+            フォント&nbsp;&nbsp;<select id="trans2Font" class="fontSelect"></select><br>
+            大きさ&nbsp;&nbsp;<input type="number" id="trans2FontSize" min="0">px<br>
+            色&nbsp;&nbsp;<input type="color" id="trans2Color">
           </td>
         </tr>
         <tr>
           <td>
-            <b>翻訳結果2のプレフィックス</b>
+            <b>文字の縁取り</b><br>
+            <span class="supplement">文字の縁取りの太さ、ぼかし、色、字間<br>縁取りの太さ0で縁取りなし、縁取りを太くした時はぼかし入れないと汚いです。</span>
           </td>
           <td>
-            <input id="trans2Prefix" class="prefix">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <b>翻訳結果2の文字の縁取り</b><br>
-            <span class="supplement">翻訳結果の文字の縁取りの太さ、ぼかし、色、字間<br>縁取りの太さ0で縁取りなし、縁取りを太くした時はぼかし入れないと汚いです。</span>
+            認識結果<br>
+            <label for="recogShadowSize">太さ</label>&nbsp;<input type="range" id="recogShadowSize" min="0" max="5">&nbsp;<span id="recogShadowSizeValue"></span>px<br>
+            <label for="recogShadowBlur">ぼかし</label>&nbsp;<input type="range" id="recogShadowBlur" min="0" max="10">&nbsp;<span id="recogShadowBlurValue"></span>px<br>
+            <label for="recogShadowColor">色</label>&nbsp;<input type="color" id="recogShadowColor"><br>
+            <label for="recogLetterSpace">文字間</label>&nbsp;<input type="range" id="recogLetterSpace" min="2" max="10" step="2">&nbsp;<span id="recogLetterSpaceValue"></span>px
           </td>
           <td>
-            <label for="trans2ShadowSize">縁取りの太さ</label>&nbsp;<input type="range" id="trans2ShadowSize" min="0" max="5">&nbsp;<span id="trans2ShadowSizeValue"></span>px<br>
-            <label for="trans2ShadowBlur">縁取りのぼかし</label>&nbsp;<input type="range" id="trans2ShadowBlur" min="0" max="10">&nbsp;<span id="trans2ShadowBlurValue"></span>px<br>
-            <label for="trans2ShadowColor">縁取りの色</label>&nbsp;<input type="color" id="trans2ShadowColor"><br>
+            翻訳1<br>
+            <label for="trans1ShadowSize">太さ</label>&nbsp;<input type="range" id="trans1ShadowSize" min="0" max="5">&nbsp;<span id="trans1ShadowSizeValue"></span>px<br>
+            <label for="trans1ShadowBlur">ぼかし</label>&nbsp;<input type="range" id="trans1ShadowBlur" min="0" max="10">&nbsp;<span id="trans1ShadowBlurValue"></span>px<br>
+            <label for="trans1ShadowColor">色</label>&nbsp;<input type="color" id="trans1ShadowColor"><br>
+            <label for="trans1LetterSpace">文字間</label>&nbsp;<input type="range" id="trans1LetterSpace" min="2" max="10" step="2">&nbsp;<span id="trans1LetterSpaceValue"></span>px
+          </td>
+          <td>
+            翻訳2<br>
+            <label for="trans2ShadowSize">太さ</label>&nbsp;<input type="range" id="trans2ShadowSize" min="0" max="5">&nbsp;<span id="trans2ShadowSizeValue"></span>px<br>
+            <label for="trans2ShadowBlur">ぼかし</label>&nbsp;<input type="range" id="trans2ShadowBlur" min="0" max="10">&nbsp;<span id="trans2ShadowBlurValue"></span>px<br>
+            <label for="trans2ShadowColor">色</label>&nbsp;<input type="color" id="trans2ShadowColor"><br>
             <label for="trans2LetterSpace">文字間</label>&nbsp;<input type="range" id="trans2LetterSpace" min="2" max="10" step="2">&nbsp;<span id="trans2LetterSpaceValue"></span>px
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>結果にプレフィックスをつける</b><br>
+            <span class="supplement">結果に接頭辞を付けたい場合に<br>例: [ja] 等...</span>
+          </td>
+          <td>
+            認識結果<br><input id="recogPrefix" class="prefix">
+          </td>
+          <td>
+            翻訳1<br><input id="trans1Prefix" class="prefix">
+          </td>
+          <td>
+            翻訳2<br><input id="trans2Prefix" class="prefix">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>ローカルフォント</b><br>
+            <span class="supplement">ローカルのフォントを使いたい時にフォントファミリー名を入力<br>見つからなかった時は上のフォントが使われます</span>
+          </td>
+          <td>
+            認識結果<br><input id="recogCustomFont">
+          </td>
+          <td>
+            翻訳1<br><input id="trans1CustomFont">
+          </td>
+          <td>
+            翻訳2<br><input id="trans2CustomFont">
           </td>
         </tr>
         <tr>
