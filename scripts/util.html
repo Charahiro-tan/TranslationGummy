@@ -61,10 +61,23 @@
     }
   }
 
-  const getFontFamily = (font, customfont) => {
+  const getFontFamily = async (font, customfont) => {
     let fontFamily = `'${fontList[font][0]}', sans-serif`;
     if(customfont.length){
-      fontFamily = `'${customfont}', ` + fontFamily;
+      try{
+        const font = JSON.parse(customfont);
+          try{
+            const fontFace = new FontFace(`local_${font.postscriptName}`, `local('${font.postscriptName}')`);
+            document.fonts.add(await fontFace.load());
+          }catch(e){
+            console.error('[fonts add]',`${customfont}: `, e);
+          }finally{
+            fontFamily = `'local_${font.postscriptName}','${font.family}',` + fontFamily;
+          }
+      }catch(e){
+        console.error('[JSON PARSE]',`${customfont}:`, e);
+        fontFamily = `'${customfont}', ` + fontFamily;
+      }
     }
     return fontFamily;
   };

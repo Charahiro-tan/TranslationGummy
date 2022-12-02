@@ -226,7 +226,7 @@
   };
 
   // スタイルの初期化
-  const styleInit = () => {
+  const styleInit = async () => {
     for(const elm of Object.values(elms)){
       const value = config[elm.id];
       if(typeof value === "undefined"){
@@ -246,9 +246,9 @@
 
     elms.display3.style.visibility = config.trans2Validity ? "visible" : "hidden";
 
-    elms.display1.style.fontFamily = getFontFamily(config.recogFont, config.recogCustomFont);
-    elms.display2.style.fontFamily = getFontFamily(config.trans1Font, config.trans1CustomFont);
-    elms.display3.style.fontFamily = getFontFamily(config.trans2Font, config.trans2CustomFont);
+    elms.display1.style.fontFamily = await getFontFamily(config.recogFont, config.recogCustomFont);
+    elms.display2.style.fontFamily = await getFontFamily(config.trans1Font, config.trans1CustomFont);
+    elms.display3.style.fontFamily = await getFontFamily(config.trans2Font, config.trans2CustomFont);
     elms.display1.style.color = config.recogColor;
     elms.display2.style.color = config.trans1Color;
     elms.display3.style.color = config.trans2Color;
@@ -417,9 +417,9 @@
       recognition.stop();
     });
 
-    elms.recogFont.addEventListener("change", () => {
+    elms.recogFont.addEventListener("change", async () => {
       config.recogFont = elms.recogFont.value;
-      elms.display1.style.fontFamily = getFontFamily(config.recogFont, config.recogCustomFont);
+      elms.display1.style.fontFamily = await getFontFamily(config.recogFont, config.recogCustomFont);
       config.recogAreaHeight = getTextareaHeight(config.recogFontSize, elms.display1.style.fontFamily);
       lsSave();
       elms.display1.style.height = `${config.recogAreaHeight}px`;
@@ -472,9 +472,9 @@
       elms.display1.style.letterSpacing = `${config.recogLetterSpace}px`;
     });
 
-    elms.recogCustomFont.addEventListener("change", () => {
+    elms.recogCustomFont.addEventListener("change", async () => {
       config.recogCustomFont = elms.recogCustomFont.value;
-      elms.display1.style.fontFamily = getFontFamily(config.recogFont, config.recogCustomFont);
+      elms.display1.style.fontFamily = await getFontFamily(config.recogFont, config.recogCustomFont);
       config.recogAreaHeight = getTextareaHeight(config.recogFontSize, elms.display1.style.fontFamily);
       lsSave();
       elms.display1.style.height = `${config.recogAreaHeight}px`;
@@ -491,9 +491,9 @@
       lsSave();
     });
 
-    elms.trans1Font.addEventListener("change", () => {
+    elms.trans1Font.addEventListener("change", async () => {
       config.trans1Font = elms.trans1Font.value;
-      elms.display2.style.fontFamily = getFontFamily(config.trans1Font, config.trans1CustomFont);
+      elms.display2.style.fontFamily = await getFontFamily(config.trans1Font, config.trans1CustomFont);
       config.trans1AreaHeight = getTextareaHeight(config.trans1FontSize, elms.display2.style.fontFamily);
       lsSave();
       elms.display2.style.height = `${config.trans1AreaHeight}px`;
@@ -546,9 +546,9 @@
       elms.display2.style.letterSpacing = `${config.trans1LetterSpace}px`;
     });
 
-    elms.trans1CustomFont.addEventListener("change", () => {
+    elms.trans1CustomFont.addEventListener("change", async () => {
       config.trans1CustomFont = elms.trans1CustomFont.value;
-      elms.display2.style.fontFamily = getFontFamily(config.trans1Font, config.trans1CustomFont);
+      elms.display2.style.fontFamily = await getFontFamily(config.trans1Font, config.trans1CustomFont);
       config.trans1AreaHeight = getTextareaHeight(config.trans1FontSize, elms.display2.style.fontFamily);
       lsSave();
       elms.display2.style.height = `${config.trans1AreaHeight}px`;
@@ -572,9 +572,9 @@
       lsSave();
     });
 
-    elms.trans2Font.addEventListener("change", () => {
+    elms.trans2Font.addEventListener("change", async () => {
       config.trans2Font = elms.trans2Font.value;
-      elms.display3.style.fontFamily = getFontFamily(config.trans2Font, config.trans2CustomFont);
+      elms.display3.style.fontFamily = await getFontFamily(config.trans2Font, config.trans2CustomFont);
       config.trans2AreaHeight = getTextareaHeight(config.trans2FontSize, elms.display3.style.fontFamily);
       lsSave();
       elms.display3.style.height = config.trans2Validity ? `${config.trans2AreaHeight}px` : "0px";
@@ -627,9 +627,9 @@
       elms.display3.style.letterSpacing = `${config.trans2LetterSpace}px`;
     });
 
-    elms.trans2CustomFont.addEventListener("change", () => {
+    elms.trans2CustomFont.addEventListener("change", async () => {
       config.trans2CustomFont = elms.trans2CustomFont.value;
-      elms.display3.style.fontFamily = getFontFamily(config.trans2Font, config.trans2CustomFont);
+      elms.display3.style.fontFamily = await getFontFamily(config.trans2Font, config.trans2CustomFont);
       config.trans2AreaHeight = getTextareaHeight(config.trans2FontSize, elms.display3.style.fontFamily);
       lsSave();
       elms.display3.style.height = config.trans2Validity ? `${config.trans2AreaHeight}px` : "0px";
