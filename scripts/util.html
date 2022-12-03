@@ -72,7 +72,7 @@
           }catch(e){
             console.error('[fonts add]',`${customfont}: `, e);
           }finally{
-            fontFamily = `'local_${font.postscriptName}','${font.family}',` + fontFamily;
+            fontFamily = `'local_${font.postscriptName}', '${font.family}',` + fontFamily;
           }
       }catch(e){
         console.error('[JSON PARSE]',`${customfont}:`, e);
