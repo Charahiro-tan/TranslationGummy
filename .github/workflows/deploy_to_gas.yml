@@ -27,3 +27,8 @@ jobs:
         run: clasp push
       - name: deploy
         run: clasp deploy -i ${{ secrets.DEPLOY_ID }}
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: ./
