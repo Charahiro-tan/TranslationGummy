@@ -1,3 +1,4 @@
+'use strict';
 const doGet = () => {
   return HtmlService.createTemplateFromFile("index")
     .evaluate()
@@ -11,7 +12,7 @@ const translate = (text, tgt, src = "") => {
   result.src = src;
   result.status = 0;
 
-  for (lang of tgt){
+  for (const lang of tgt){
     let code = 0;
     let translated = "";
     for (let i = 0; i < 3; i++) {
