@@ -112,7 +112,9 @@
     if(!config.recogResultHidden && config.interimResults){
       for(const res of event.results){
         if(!res.isFinal){
-          result += res[0].transcript;
+          if(res[0].transcript){
+            result += res[0].transcript;
+          }
         }
       }
       if(event.results[event.resultIndex].isFinal){
@@ -122,14 +124,16 @@
       elms.display1.scrollLeft = elms.display1.scrollWidth;
     }
     if(event.results[event.resultIndex].isFinal){
-      transQ.put(event.results[event.resultIndex][0].transcript);
-      if(!nowTranslating){
-        gasTrans();
-      }
-      if(!config.recogResultHidden && config.interimResults){
-        await sleep(2000);
-        if(elms.display1.value === config.recogPrefix + result + " "){
-          elms.display1.value = "";
+      if(event.results[event.resultIndex][0].transcript){
+        transQ.put(event.results[event.resultIndex][0].transcript);
+        if(!nowTranslating){
+          gasTrans();
+        }
+        if(!config.recogResultHidden && config.interimResults){
+          await sleep(2000);
+          if(elms.display1.value === config.recogPrefix + result + " "){
+            elms.display1.value = "";
+          }
         }
       }
     }
